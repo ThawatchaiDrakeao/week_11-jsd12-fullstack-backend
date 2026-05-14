@@ -1,33 +1,40 @@
-export const users = [
+export const users =
+ [
   {
-    id: 1,
-    username: "John Doe",
-    email: "john.doe@example.com",
-    password: "password123"
+    "id": 1,
+    "username": "Lionel Messi",
+    "email": "lionel.messi@example.com",
+    "password": "LM10_@InterM!2026"
   },
   {
-    id: 2,
-    username: "Jane Smith",
-    email: "jane.smith@example.com",
-    password: "password456"
+    "id": 2,
+    "username": "Kylian Mbappe",
+    "email": "k.mbappe@realmadrid.com",
+    "password": "KM7_#Safe!2026"
   },
   {
-    id: 3,
-    username: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    password: "password789"
+    "id": 3,
+    "username": "Erling Haaland",
+    "email": "e.haaland@mancity.com",
+    "password": "EH9_viking@Power"
   },
   {
-    id: 4,
-    username: "Alice Williams",
-    email: "alice.williams@example.com",
-    password: "password012"
+    "id": 4,
+    "username": "Lamine Yamal",
+    "email": "l.yamal@barcelona.com",
+    "password": "LY19_Barca$Star"
   },
   {
-    id: 5,
-    username: "Bob Johnson",
-    email: "bob.johnson@example.com",
-    password: "password345"
+    "id": 5,
+    "username": "Cristiano Ronaldo",
+    "email": "cr7.legend@alnassr.com",
+    "password": "CR7_GOAT&999+"
+  },
+  {
+    "id": 6,
+    "username": "Harry Kane",
+    "email": "h.kane@bayern.com",
+    "password": "HK9_Goal!Master"
   }
 ];
 
