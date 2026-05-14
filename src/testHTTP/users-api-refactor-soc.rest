@@ -1,0 +1,23 @@
+### Read all users
+GET http://localhost:3002/api/users
+
+
+### Create a new user
+POST http://localhost:3002/api/users
+Content-Type: application/json
+
+{
+  "username": "Zinedine Zidane",
+  "email": "zizou.z5@legend.com",
+  "password": "Zizou_Magic_Volley"
+}
+
+### Update a user
+PUT http://localhost:3002/api/users/1
+Content-Type: application/json
+
+{
+  "username": "Lionel Messi TheAlien_10",
+  "email": "lionel.messi@example.com",
+  "password": "TheIntergalacticGOAT_10!"
+}
