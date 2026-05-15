@@ -11,7 +11,9 @@ router.post("/", (req, res) => {
   const { username, email, password } = req.body || {};
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "username, email, and password are required" });
+    return res
+      .status(400)
+      .json({ error: "username, email, and password are required" });
   }
 
   const nextId = String(
@@ -25,7 +27,6 @@ router.post("/", (req, res) => {
   return res.status(201).json(newUser);
 });
 
-
 router.put("/:id", (req, res) => {
   const user = users.find((u) => String(u.id) === req.params.id);
 
@@ -36,7 +37,9 @@ router.put("/:id", (req, res) => {
   const { username, email, password } = req.body || {};
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "username, email, and password are required" });
+    return res
+      .status(400)
+      .json({ error: "username, email, and password are required" });
   }
 
   user.username = username;
@@ -45,6 +48,5 @@ router.put("/:id", (req, res) => {
 
   return res.status(200).json(user);
 });
-
 
 // router.delete();
