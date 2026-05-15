@@ -1,20 +1,19 @@
 import express from "express";
 import cors from "cors";
 
-import { users } from "./fakeData/fakeUsers.js";
 import { router as apiRoutes } from "./routes/index.js";
+import { connectDB } from "./config/mongodb.js";
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
 app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
   res.send(`<!doctype html>
-    <html lang="en"> 
+    <html lang="en">
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,8 +44,15 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-const port = 3002;
+const port = Number(process.env.PORT) || 3002;
+const isMongoConnected = await connectDB();
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}❤️`);
+  if (isMongoConnected) {
+    console.log("MongoDB connected ✅");
+  } else {
+    console.log("Database mode: fallback without MongoDB");
+  }
+
+  console.log(`Server running on PORT: ${port} 💗`);
 });
