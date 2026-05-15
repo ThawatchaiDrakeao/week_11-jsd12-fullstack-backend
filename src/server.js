@@ -7,7 +7,10 @@ import { router as apiRoutes } from "./routes/v1/index.js";
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
+
+app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
   res.send(`<!doctype html>
@@ -41,12 +44,6 @@ app.get("/", (req, res) => {
     </body>
   </html>`);
 });
-
-
-
-app.use("/api", apiRoutes);
-
-
 
 const port = 3002;
 
