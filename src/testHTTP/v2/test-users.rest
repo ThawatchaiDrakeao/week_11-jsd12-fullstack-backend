@@ -1,15 +1,15 @@
 ### Read all users
 GET http://localhost:3002/api/v2/users
 
-
 ### Create a new user
 POST http://localhost:3002/api/v2/users
 Content-Type: application/json
 
 {
-  "username": "Zinedine Zidane",
-  "email": "zizou.z5@legend.com",
-  "password": "Zizou_Magic_Volley"
+    "username": "Charlie", 
+    "role": "admin",
+    "email": "charlie2@example.com",
+    "password": "password123"
 }
 
 ### Update a user
@@ -17,9 +17,9 @@ PUT http://localhost:3002/api/v2/users/1
 Content-Type: application/json
 
 {
-  "username": "Lionel Messi TheAlien_10",
-  "email": "lionel.messi@example.com",
-  "password": "TheIntergalacticGOAT_10!"
+    "username": "Neeti3", 
+    "email": "neeti@example.com",
+    "password": "pass123"
 }
 
 ### DELETE a user

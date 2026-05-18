@@ -22,7 +22,10 @@ export async function connectDB() {
   }
 
   try {
-    await mongoose.connect(uri, { dbName: "jsd12-express-app" });
+    await mongoose.connect(uri, {
+      dbName: "jsd12-express-app",
+      serverSelectionTimeoutMS: 5000,
+    });
     return true;
   } catch (err) {
     console.error("MongoDB connection error:", err.message);

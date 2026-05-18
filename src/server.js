@@ -1,19 +1,22 @@
 import express from "express";
 import cors from "cors";
 
+import { users } from "./fakeData/fakeUsers.js";
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
+import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 
 app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
   res.send(`<!doctype html>
-    <html lang="en">
+  <html lang="en">
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -44,15 +47,11 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-const port = Number(process.env.PORT) || 3002;
-const isMongoConnected = await connectDB();
+const PORT = 3002;
 
-app.listen(port, () => {
-  if (isMongoConnected) {
-    console.log("MongoDB connected ✅");
-  } else {
-    console.log("Database mode: fallback without MongoDB");
-  }
+await connectDB();
+await connectSupabase();
 
-  console.log(`Server running on PORT: ${port} 💗`);
+app.listen(PORT, () => {
+  console.log(`Server running on PORT: ${PORT} 🟢`);
 });
