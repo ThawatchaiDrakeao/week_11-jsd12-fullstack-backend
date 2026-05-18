@@ -1,26 +1,25 @@
-### Read all users
+### Read all users (MongoDB)
 GET http://localhost:3002/api/v2/users
 
-### Create a new user
+### Create a new user (MongoDB)
 POST http://localhost:3002/api/v2/users
 Content-Type: application/json
 
 {
-    "username": "Charlie", 
-    "role": "admin",
-    "email": "charlie2@example.com",
-    "password": "password123"
+  "username": "Charlie",
+  "role": "admin",
+  "email": "charlie3@example.com",
+  "password": "password123"
 }
 
-### Update a user
-PUT http://localhost:3002/api/v2/users/1
+### Update a user (MongoDB) - replace the id with a real MongoDB ObjectId
+PUT http://localhost:3002/api/v2/users/replace-with-real-mongo-id
 Content-Type: application/json
 
 {
-    "username": "Neeti3", 
-    "email": "neeti@example.com",
-    "password": "pass123"
+  "username": "Charlie Updated",
+  "role": "user"
 }
 
-### DELETE a user
-DELETE http://localhost:3002/api/v2/users/1
+### Delete a user (MongoDB) - replace the id with a real MongoDB ObjectId
+DELETE http://localhost:3002/api/v2/users/replace-with-real-mongo-id

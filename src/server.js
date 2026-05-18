@@ -1,15 +1,15 @@
 import express from "express";
 import cors from "cors";
 
-import { users } from "./fakeData/fakeUsers.js";
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
+const PORT = Number(process.env.PORT) || 3002;
+const greenCheck = "\x1b[32m✔\x1b[0m";
 
 app.use(cors());
-
 app.use(express.json());
 
 app.use("/api", apiRoutes);
@@ -47,11 +47,35 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-const PORT = 3002;
+app.use((error, req, res, next) => {
+  if (error instanceof SyntaxError && "body" in error) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid JSON body",
+    });
+  }
 
-await connectDB();
-await connectSupabase();
+  return next(error);
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on PORT: ${PORT} 🟢`);
+  console.log(`${greenCheck} Server running on PORT: ${PORT}`);
 });
+
+try {
+  const isMongoConnected = await connectDB();
+
+  if (isMongoConnected) {
+    console.log(`${greenCheck} MongoDB connected`);
+  } else {
+    console.log("Database mode: fallback without MongoDB");
+  }
+} catch (error) {
+  console.error("MongoDB startup error:", error.message || error);
+}
+
+try {
+  await connectSupabase();
+} catch (error) {
+  console.error("Supabase startup error:", error.message || error);
+}

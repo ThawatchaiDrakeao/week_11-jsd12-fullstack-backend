@@ -9,25 +9,53 @@
 ### Read all users (Supabase)
 GET http://localhost:3002/api/v2/users/pg
 
-### Create a new user (Supabase)
+### Create multiple users at once (Supabase)
 POST http://localhost:3002/api/v2/users/pg
 Content-Type: application/json
 
-{
-    "username": "Alice",
+[
+  {
+    "username": "Augustus",
     "role": "admin",
-    "email": "alice@example.com",
-    "password": "password123"
-}
+    "email": "octavian.augustus@imperium.rom",
+    "password": "PaxRomana$27BC"
+  },
+  {
+    "username": "JuliusCaesar",
+    "role": "admin",
+    "email": "j.caesar@senate.rom",
+    "password": "VeniVidiVici*44"
+  },
+  {
+    "username": "Nero",
+    "role": "user",
+    "email": "nero.claudius@palatine.rom",
+    "password": "RomeIsBurning64!"
+  },
+  {
+    "username": "MarcusAurelius",
+    "role": "admin",
+    "email": "marcus.aurelius@stoic.rom",
+    "password": "Meditations@180"
+  },
+  {
+    "username": "Constantine",
+    "role": "user",
+    "email": "constantine.great@byzantium.rom",
+    "password": "InHocSignoVinces312"
+  }
+]
 
-### Update a user (Supabase) — replace the UUID with a real id from POST response
-PUT http://localhost:3002/api/v2/users/pg/9274afc7-817a-4981-bc89-ae429d556fd1
+### Update a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
+PUT http://localhost:3002/api/v2/users/pg/026d2630-3ed0-46e2-999e-260006cd3301
 Content-Type: application/json
 
 {
-    "username": "Alice Updated",
-    "role": "user"
+  "username": "Augustus ",
+  "role": "admin",
+  "email": "octavian.augustus@imperium.rom",
+  "password": "PaxRomana$27BC"
 }
 
-### Delete a user (Supabase) — replace the UUID with a real id from POST response
-DELETE http://localhost:3002/api/v2/users/pg/5a036cd6-d37a-406a-96b9-faeaa77b0736
+### Delete a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
+DELETE http://localhost:3002/api/v2/users/pg/026d2630-3ed0-46e2-999e-260006cd3301
