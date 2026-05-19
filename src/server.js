@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 
+
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
@@ -47,15 +48,17 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-app.use((error, req, res, next) => {
-  if (error instanceof SyntaxError && "body" in error) {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid JSON body",
-    });
-  }
-
-  return next(error);
+// Centralized error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error!",
+    path: req.originalUrl,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    stack: err.stack,
+  });
 });
 
 app.listen(PORT, () => {

@@ -47,15 +47,14 @@ Content-Type: application/json
 ]
 
 ### Update a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
-PUT http://localhost:3002/api/v2/users/pg/026d2630-3ed0-46e2-999e-260006cd3301
+PUT http://localhost:3002/api/v2/users/pg/84baa56e-b288-47f3-93e6-39b3f73b1d9e
 Content-Type: application/json
 
 {
   "username": "Augustus ",
   "role": "admin",
-  "email": "octavian.augustus@imperium.rom",
-  "password": "PaxRomana$27BC"
+  
 }
 
 ### Delete a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
-DELETE http://localhost:3002/api/v2/users/pg/026d2630-3ed0-46e2-999e-260006cd3301
+DELETE http://localhost:3002/api/v2/users/pg/84baa56e-b288-47f3-93e6-39b3f73b1d9e
