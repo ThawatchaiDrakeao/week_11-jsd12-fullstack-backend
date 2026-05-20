@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+export function isMongoReady() {
+  return mongoose.connection.readyState === 1;
+}
+
 export async function connectDB() {
   const uri = process.env.MONGODB_URI;
   const isDevelopment = process.env.NODE_ENV !== "production";
@@ -24,6 +28,7 @@ export async function connectDB() {
   try {
     await mongoose.connect(uri, {
       dbName: "jsd12-express-app",
+      bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
     });
     return true;

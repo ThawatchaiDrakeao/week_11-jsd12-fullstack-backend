@@ -1,7 +1,7 @@
-# Supabase / PostgreSQL — Users API (v2)
+# Supabase / PostgreSQL - Users API (v2)
 # Base: /api/v2/users/pg
 #
-# IDs in Supabase are UUIDs — replace the placeholder below with a real one
+# IDs in Supabase are UUIDs. Replace the placeholder below with a real one
 # after running the POST request.
 #
 # @id = paste-a-real-uuid-here
@@ -9,52 +9,34 @@
 ### Read all users (Supabase)
 GET http://localhost:3002/api/v2/users/pg
 
-### Create multiple users at once (Supabase)
+### Create a new user (Supabase)
 POST http://localhost:3002/api/v2/users/pg
 Content-Type: application/json
 
-[
-  {
-    "username": "Augustus",
-    "role": "admin",
-    "email": "octavian.augustus@imperium.rom",
-    "password": "PaxRomana$27BC"
-  },
-  {
-    "username": "JuliusCaesar",
-    "role": "admin",
-    "email": "j.caesar@senate.rom",
-    "password": "VeniVidiVici*44"
-  },
-  {
-    "username": "Nero",
-    "role": "user",
-    "email": "nero.claudius@palatine.rom",
-    "password": "RomeIsBurning64!"
-  },
-  {
-    "username": "MarcusAurelius",
-    "role": "admin",
-    "email": "marcus.aurelius@stoic.rom",
-    "password": "Meditations@180"
-  },
-  {
-    "username": "Constantine",
-    "role": "user",
-    "email": "constantine.great@byzantium.rom",
-    "password": "InHocSignoVinces312"
-  }
-]
+{
+  "username": "Augustus",
+  "role": "admin",
+  "email": "octavian.augustus@imperium.rom",
+  "password": "PaxRomana$27BC"
+}
 
-### Update a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
-PUT http://localhost:3002/api/v2/users/pg/84baa56e-b288-47f3-93e6-39b3f73b1d9e
+### Login user (Supabase)
+POST http://localhost:3002/api/v2/users/pg/login
 Content-Type: application/json
 
 {
-  "username": "Augustus ",
-  "role": "admin",
-  
+  "email": "octavian.augustus@imperium.rom",
+  "password": "PaxRomana$27BC"
 }
 
-### Delete a user (Supabase) — ⚠️ IMPORTANT: Replace the UUID with a REAL id from GET response!
-DELETE http://localhost:3002/api/v2/users/pg/84baa56e-b288-47f3-93e6-39b3f73b1d9e
+### Update a user (Supabase) - replace the UUID with a real id from GET response
+PUT http://localhost:3002/api/v2/users/pg/paste-a-real-uuid-here
+Content-Type: application/json
+
+{
+  "username": "Augustus Updated",
+  "role": "admin"
+}
+
+### Delete a user (Supabase) - replace the UUID with a real id from GET response
+DELETE http://localhost:3002/api/v2/users/pg/paste-a-real-uuid-here

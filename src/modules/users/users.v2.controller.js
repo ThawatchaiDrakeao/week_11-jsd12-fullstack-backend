@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+import { isMongoReady } from "../../config/mongodb.js";
 import { User } from "./user.model.js";
 
 const userResponse = (doc) => {
@@ -6,7 +8,21 @@ const userResponse = (doc) => {
   return user;
 };
 
+const ensureMongoReady = (res) => {
+  if (isMongoReady()) {
+    return true;
+  }
+
+  res.status(503).json({
+    success: false,
+    error: "MongoDB is not connected yet",
+  });
+  return false;
+};
+
 export const getUsers = async (req, res, next) => {
+  if (!ensureMongoReady(res)) return;
+
   try {
     const users = await User.find();
     return res.status(200).json({ success: true, data: users });
@@ -18,17 +34,79 @@ export const getUsers = async (req, res, next) => {
 export const createUser = async (req, res, next) => {
   const { username, email, password, role } = req.body || {};
 
+  if (!ensureMongoReady(res)) return;
+
   if (!username || !email || !password) {
-    const err = new Error("username, email, and password are required");
-    err.name = "ValidationError";
-    err.status = 400;
-    return res.status(400).json({ success: false, error: err });
+    return res.status(400).json({
+      success: false,
+      error: "username, email, and password are required",
+    });
   }
 
   try {
-    const doc = await User.create({ username, email, password, role });
+    const normalizedEmail = email.trim().toLowerCase();
+    const userExists = await User.findOne({ email: normalizedEmail });
+
+    if (userExists) {
+      return res.status(409).json({
+        success: false,
+        error: "This email is already in use",
+      });
+    }
+
+    // ✅ เอาโค้ด bcrypt.hash ตรงนี้ออกแล้ว ส่งพาสเวิร์ดตรงๆ ไปให้ User.model จัดการแฮชแทน
+    const doc = await User.create({
+      username,
+      email: normalizedEmail,
+      password, 
+      role,
+    });
 
     return res.status(201).json({ success: true, data: userResponse(doc) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const loginUser = async (req, res, next) => {
+  const { email, password } = req.body || {};
+
+  if (!ensureMongoReady(res)) return;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      error: "email and password are required",
+    });
+  }
+
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+    const userInDB = await User.findOne({ email: normalizedEmail }).select(
+      "+password",
+    );
+
+    if (!userInDB) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid email or password",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, userInDB.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid email or password",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: userResponse(userInDB),
+      message: "Login successful",
+    });
   } catch (err) {
     next(err);
   }
@@ -38,12 +116,13 @@ export const updateUser = async (req, res, next) => {
   const { username, email, password, role } = req.body || {};
   const updates = {};
 
+  if (!ensureMongoReady(res)) return;
+
   if (username !== undefined) updates.username = username;
-  if (email !== undefined) updates.email = email;
-  if (password !== undefined) updates.password = password;
+  if (email !== undefined) updates.email = email.trim().toLowerCase();
   if (role !== undefined) updates.role = role;
 
-  if (Object.keys(updates).length === 0) {
+  if (Object.keys(updates).length === 0 && password === undefined) {
     return res.status(400).json({
       success: false,
       error: "At least one field is required to update",
@@ -51,6 +130,10 @@ export const updateUser = async (req, res, next) => {
   }
 
   try {
+    if (password !== undefined) {
+      updates.password = await bcrypt.hash(password, 12);
+    }
+
     const doc = await User.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
@@ -68,6 +151,8 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
+  if (!ensureMongoReady(res)) return;
+
   try {
     const doc = await User.findByIdAndDelete(req.params.id).select("+password");
 

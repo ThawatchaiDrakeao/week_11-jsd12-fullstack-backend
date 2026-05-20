@@ -1,14 +1,13 @@
 import express from "express";
 import cors from "cors";
 
-
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3002;
-const greenCheck = "\x1b[32m✔\x1b[0m";
+// ลบ const greenCheck ออกไปแล้ว เพราะเราจะใช้อิโมจิแทน
 
 app.use(cors());
 app.use(express.json());
@@ -62,14 +61,16 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`${greenCheck} Server running on PORT: ${PORT}`);
+  // เปลี่ยนมาใส่ ✅ ไว้ด้านหลัง
+  console.log(`Server running on PORT: ${PORT} ✅`);
 });
 
 try {
   const isMongoConnected = await connectDB();
 
   if (isMongoConnected) {
-    console.log(`${greenCheck} MongoDB connected`);
+    // เปลี่ยนมาใส่ ✅ ไว้ด้านหลัง
+    console.log("MongoDB connected ✅");
   } else {
     console.log("Database mode: fallback without MongoDB");
   }

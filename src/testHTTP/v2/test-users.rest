@@ -6,21 +6,29 @@ POST http://localhost:3002/api/v2/users
 Content-Type: application/json
 
 {
-  "username": "Charlie",
+  "username": "Kangxi",
   "role": "admin",
-  "email": "charlie3@example.com",
-  "password": "password123"
+  "email": "kangxi@example.com",
+  "password": "qingdynasty1661"
 }
 
-### Update a user (MongoDB) - replace the id with a real MongoDB ObjectId
-PUT http://localhost:3002/api/v2/users/replace-with-real-mongo-id
+### Login user (MongoDB)
+POST http://localhost:3002/api/v2/users/login
 Content-Type: application/json
 
 {
-  "username": "Charlie Updated",
+  "email": "kangxi@example.com",
+  "password": "qingdynasty1661"
+}
+
+### Update a user (MongoDB) - ใช้ ID จริงของคังซีแล้ว
+PUT http://localhost:3002/api/v2/users/6a0d6dde9f56e88888c06b7f
+Content-Type: application/json
+
+{
+  "username": "Emperor Kangxi",
   "role": "user"
 }
 
-
-### Delete a user (MongoDB) - replace the id with a real MongoDB ObjectId
-DELETE http://localhost:3002/api/v2/users/replace-with-real-mongo-id
+### Delete a user (MongoDB) - ใช้ ID จริงของคังซีแล้ว
+DELETE http://localhost:3002/api/v2/users/6a0d6dde9f56e88888c06b7f
