@@ -1,7 +1,11 @@
 import bcrypt from "bcrypt";
 import { Router } from "express";
 import { supabase } from "../../config/supabase.js";
-import { protectAuth } from "../../middlewares/auth.middleware.js";
+import {
+  protectAuth,
+  authorizeRoles,
+  authorizeSelfOrAdmin,
+} from "../../middlewares/auth.middleware.js";
 import {
   getUsers,
   createUser,
@@ -16,14 +20,14 @@ import {
 export const router = Router();
 
 // MongoDB routes (/api/v2/users)
-router.get("/", getUsers);
+router.get("/", protectAuth, authorizeRoles("admin"), getUsers);
 router.post("/", createUser);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.get("/me", protectAuth, getMe);
-router.put("/:id", updateUser);
-router.delete("/:id", deleteUser);
+router.put("/:id", protectAuth, authorizeSelfOrAdmin("id"), updateUser);
+router.delete("/:id", protectAuth, authorizeSelfOrAdmin("id"), deleteUser);
 
 // Supabase / PostgreSQL routes (/api/v2/users/pg)
 const PG_SELECT = "id, username, email, role, created_at, updated_at";

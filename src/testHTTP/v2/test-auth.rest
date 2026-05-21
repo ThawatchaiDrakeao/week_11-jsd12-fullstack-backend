@@ -1,6 +1,7 @@
 @baseUrl = http://localhost:3002/api/v2/users
 @json = Content-Type: application/json
 @token = paste-your-jwt-token-here
+@myUserId = paste-your-user-id-here
 
 ### Register
 POST {{baseUrl}}/register
@@ -26,6 +27,18 @@ POST {{baseUrl}}/login
 GET {{baseUrl}}/me
 Authorization: Bearer {{token}}
 
+### Update My Account
+PUT {{baseUrl}}/{{myUserId}}
+{{json}}
+Authorization: Bearer {{token}}
+
+{
+  "username": "Auth Demo Updated"
+}
+
+### Delete My Account
+DELETE {{baseUrl}}/{{myUserId}}
+Authorization: Bearer {{token}}
+
 ### Logout
 POST {{baseUrl}}/logout
-

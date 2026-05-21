@@ -64,3 +64,48 @@ export const protectAuth = async (req, res, next) => {
     });
   }
 };
+
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized: user context missing",
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: insufficient permissions",
+      });
+    }
+
+    next();
+  };
+};
+
+export const authorizeSelfOrAdmin = (paramKey = "id") => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized: user context missing",
+      });
+    }
+
+    const targetUserId = req.params[paramKey];
+    const currentUserId = String(req.user._id);
+    const isAdmin = req.user.role === "admin";
+    const isOwner = currentUserId === targetUserId;
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: you can only access your own account",
+      });
+    }
+
+    next();
+  };
+};

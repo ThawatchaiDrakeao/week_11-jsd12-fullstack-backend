@@ -27,17 +27,23 @@ POST {{baseUrl}}/login
 
 ### Set token manually after login if your REST client does not keep cookies
 @token = paste-your-jwt-token-here
+@myUserId = paste-your-user-id-here
 
 ### Get current user with Bearer token
 GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Read all users as admin only
+GET {{baseUrl}}
 Authorization: Bearer {{token}}
 
 ### Logout user
 POST {{baseUrl}}/logout
 
 ### Update a user (MongoDB)
-PUT {{baseUrl}}/6a0d6dde9f56e88888c06b7f
+PUT {{baseUrl}}/{{myUserId}}
 {{json}}
+Authorization: Bearer {{token}}
 
 {
   "username": "Emperor Kangxi",
@@ -45,4 +51,5 @@ PUT {{baseUrl}}/6a0d6dde9f56e88888c06b7f
 }
 
 ### Delete a user (MongoDB)
-DELETE {{baseUrl}}/6a0d6dde9f56e88888c06b7f
+DELETE {{baseUrl}}/{{myUserId}}
+Authorization: Bearer {{token}}
