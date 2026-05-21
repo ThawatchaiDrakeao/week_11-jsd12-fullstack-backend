@@ -7,9 +7,13 @@ import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3002;
-// ลบ const greenCheck ออกไปแล้ว เพราะเราจะใช้อิโมจิแทน
 
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 app.use("/api", apiRoutes);
@@ -47,7 +51,6 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-// Centralized error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -61,7 +64,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  // เปลี่ยนมาใส่ ✅ ไว้ด้านหลัง
   console.log(`Server running on PORT: ${PORT} ✅`);
 });
 
@@ -69,7 +71,6 @@ try {
   const isMongoConnected = await connectDB();
 
   if (isMongoConnected) {
-    // เปลี่ยนมาใส่ ✅ ไว้ด้านหลัง
     console.log("MongoDB connected ✅");
   } else {
     console.log("Database mode: fallback without MongoDB");

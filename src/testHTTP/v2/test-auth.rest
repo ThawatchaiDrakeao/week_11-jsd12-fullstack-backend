@@ -1,0 +1,31 @@
+@baseUrl = http://localhost:3002/api/v2/users
+@json = Content-Type: application/json
+@token = paste-your-jwt-token-here
+
+### Register
+POST {{baseUrl}}/register
+{{json}}
+
+{
+  "username": "Auth Demo",
+  "email": "auth-demo@example.com",
+  "password": "password123",
+  "role": "user"
+}
+
+### Login
+POST {{baseUrl}}/login
+{{json}}
+
+{
+  "email": "auth-demo@example.com",
+  "password": "password123"
+}
+
+### Get Me With Bearer Token
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Logout
+POST {{baseUrl}}/logout
+

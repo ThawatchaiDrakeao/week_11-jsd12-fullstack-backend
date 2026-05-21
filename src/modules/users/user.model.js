@@ -18,7 +18,7 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 12);
 });
 
-// ตัด password ทิ้งตอน response
+// // ตัด password ทิ้งตอน response
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.password;

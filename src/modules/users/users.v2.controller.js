@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { isMongoReady } from "../../config/mongodb.js";
 import { User } from "./user.model.js";
+
+const TOKEN_COOKIE_NAME = "accessToken";
 
 const userResponse = (doc) => {
   const user = doc.toObject();
@@ -19,6 +22,36 @@ const ensureMongoReady = (res) => {
   });
   return false;
 };
+
+const setAuthCookie = (res, token) => {
+  const isProd = process.env.NODE_ENV === "production";
+
+  res.cookie(TOKEN_COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+    maxAge: 60 * 60 * 1000,
+  });
+};
+
+const clearAuthCookie = (res) => {
+  const isProd = process.env.NODE_ENV === "production";
+
+  res.clearCookie(TOKEN_COOKIE_NAME, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+  });
+};
+
+const buildToken = (user) =>
+  jwt.sign(
+    { id: user._id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" },
+  );
 
 export const getUsers = async (req, res, next) => {
   if (!ensureMongoReady(res)) return;
@@ -54,19 +87,24 @@ export const createUser = async (req, res, next) => {
       });
     }
 
-    // ✅ เอาโค้ด bcrypt.hash ตรงนี้ออกแล้ว ส่งพาสเวิร์ดตรงๆ ไปให้ User.model จัดการแฮชแทน
     const doc = await User.create({
       username,
       email: normalizedEmail,
-      password, 
+      password,
       role,
     });
 
-    return res.status(201).json({ success: true, data: userResponse(doc) });
+    return res.status(201).json({
+      success: true,
+      data: userResponse(doc),
+      message: "Register successful",
+    });
   } catch (err) {
     next(err);
   }
 };
+
+export const registerUser = createUser;
 
 export const loginUser = async (req, res, next) => {
   const { email, password } = req.body || {};
@@ -102,10 +140,40 @@ export const loginUser = async (req, res, next) => {
       });
     }
 
+    const token = buildToken(userInDB);
+    setAuthCookie(res, token);
+
     return res.status(200).json({
       success: true,
-      data: userResponse(userInDB),
+      data: {
+        user: userResponse(userInDB),
+        token,
+      },
       message: "Login successful",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const logoutUser = async (req, res, next) => {
+  try {
+    clearAuthCookie(res);
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getMe = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      data: req.user,
     });
   } catch (err) {
     next(err);

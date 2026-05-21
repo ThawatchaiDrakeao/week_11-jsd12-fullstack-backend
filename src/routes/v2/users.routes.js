@@ -1,10 +1,14 @@
 import bcrypt from "bcrypt";
 import { Router } from "express";
 import { supabase } from "../../config/supabase.js";
+import { protectAuth } from "../../middlewares/auth.middleware.js";
 import {
   getUsers,
   createUser,
+  registerUser,
   loginUser,
+  logoutUser,
+  getMe,
   updateUser,
   deleteUser,
 } from "../../modules/users/users.v2.controller.js";
@@ -14,7 +18,10 @@ export const router = Router();
 // MongoDB routes (/api/v2/users)
 router.get("/", getUsers);
 router.post("/", createUser);
+router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/logout", logoutUser);
+router.get("/me", protectAuth, getMe);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 

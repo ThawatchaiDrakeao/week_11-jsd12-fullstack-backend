@@ -1,9 +1,12 @@
-### Read all users (MongoDB)
-GET http://localhost:3002/api/v2/users
+@baseUrl = http://localhost:3002/api/v2/users
+@json = Content-Type: application/json
 
-### Create a new user (MongoDB)
-POST http://localhost:3002/api/v2/users
-Content-Type: application/json
+### Read all users (MongoDB)
+GET {{baseUrl}}
+
+### Register user (MongoDB)
+POST {{baseUrl}}/register
+{{json}}
 
 {
   "username": "Kangxi",
@@ -13,22 +16,33 @@ Content-Type: application/json
 }
 
 ### Login user (MongoDB)
-POST http://localhost:3002/api/v2/users/login
-Content-Type: application/json
+# Copy token from response and paste into @token below if you want to test Bearer auth.
+POST {{baseUrl}}/login
+{{json}}
 
 {
   "email": "kangxi@example.com",
   "password": "qingdynasty1661"
 }
 
-### Update a user (MongoDB) - ใช้ ID จริงของคังซีแล้ว
-PUT http://localhost:3002/api/v2/users/6a0d6dde9f56e88888c06b7f
-Content-Type: application/json
+### Set token manually after login if your REST client does not keep cookies
+@token = paste-your-jwt-token-here
+
+### Get current user with Bearer token
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Logout user
+POST {{baseUrl}}/logout
+
+### Update a user (MongoDB)
+PUT {{baseUrl}}/6a0d6dde9f56e88888c06b7f
+{{json}}
 
 {
   "username": "Emperor Kangxi",
   "role": "user"
 }
 
-### Delete a user (MongoDB) - ใช้ ID จริงของคังซีแล้ว
-DELETE http://localhost:3002/api/v2/users/6a0d6dde9f56e88888c06b7f
+### Delete a user (MongoDB)
+DELETE {{baseUrl}}/6a0d6dde9f56e88888c06b7f
