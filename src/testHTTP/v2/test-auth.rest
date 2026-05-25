@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:3002/api/v2/users
+@json = Content-Type: application/json
+@token = paste-your-jwt-token-here
+@myUserId = paste-your-user-id-here
+
+### Register
+POST {{baseUrl}}/register
+{{json}}
+
+{
+  "username": "Mohamed Salah The Greatest Legend of Liverpool",
+  "email": "m.salah@example.com",
+  "password": "MS11_AnfieldKing!",
+  "role": "user"
+}
+
+### Login
+POST {{baseUrl}}/login
+{{json}}
+
+{
+  "email": "m.salah@example.com",
+  "password": "MS11_AnfieldKing!"
+}
+
+### Get Me With Bearer Token
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Update My Account
+PUT {{baseUrl}}/{{myUserId}}
+{{json}}
+Authorization: Bearer {{token}}
+
+{
+  "username": "Mohamed Salah The Greatest Legend of Liverpool "
+}
+
+### Delete My Account
+DELETE {{baseUrl}}/{{myUserId}}
+Authorization: Bearer {{token}}
+
+### Logout
+POST {{baseUrl}}/logout

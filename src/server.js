@@ -3,17 +3,24 @@ import cors from "cors";
 
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
+import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
+const PORT = Number(process.env.PORT) || 3002;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
   res.send(`<!doctype html>
-    <html lang="en">
+  <html lang="en">
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -44,15 +51,36 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-const port = Number(process.env.PORT) || 3002;
-const isMongoConnected = await connectDB();
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error!",
+    path: req.originalUrl,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    stack: err.stack,
+  });
+});
 
-app.listen(port, () => {
+app.listen(PORT, () => {
+  console.log(`Server running on PORT: ${PORT} ✅`);
+});
+
+try {
+  const isMongoConnected = await connectDB();
+
   if (isMongoConnected) {
     console.log("MongoDB connected ✅");
   } else {
     console.log("Database mode: fallback without MongoDB");
   }
+} catch (error) {
+  console.error("MongoDB startup error:", error.message || error);
+}
 
-  console.log(`Server running on PORT: ${port} 💗`);
-});
+try {
+  await connectSupabase();
+} catch (error) {
+  console.error("Supabase startup error:", error.message || error);
+}
