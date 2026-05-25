@@ -1,200 +1,131 @@
-import bcrypt from "bcrypt";
 import { Router } from "express";
-import { supabase } from "../../config/supabase.js";
-import {
-  protectAuth,
-  authorizeSelfOrAdmin,
-} from "../../middlewares/auth.middleware.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+import { User } from "../../modules/users/user.model.js";
 import {
   getUsers,
   createUser,
-  registerUser,
-  loginUser,
-  logoutUser,
-  getMe,
   updateUser,
   deleteUser,
+  askUsers,
 } from "../../modules/users/users.v2.controller.js";
+import { authUser } from "../../middlewares/auth.js";
 
 export const router = Router();
 
 // MongoDB routes (/api/v2/users)
+
+// Read all users
 router.get("/", getUsers);
+
+// Create a user
 router.post("/", createUser);
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
-router.post("/auth/logout", logoutUser);
-router.get("/me", protectAuth, getMe);
-router.get("/auth/me", protectAuth, getMe);
-router.put("/:id", protectAuth, authorizeSelfOrAdmin("id"), updateUser);
-router.delete("/:id", protectAuth, authorizeSelfOrAdmin("id"), deleteUser);
 
-// Supabase / PostgreSQL routes (/api/v2/users/pg)
-const PG_SELECT = "id, username, email, role, created_at, updated_at";
+// Update a user
+router.put("/:id", updateUser);
 
-router.get("/pg", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("users").select(PG_SELECT);
+// Delete a user
+router.delete("/:id", deleteUser);
 
-    if (error) throw error;
-
-    return res.status(200).json({ success: true, data });
-  } catch (error) {
-    return res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-router.post("/pg", async (req, res) => {
-  const { username, email, password, role } = req.body || {};
-
-  if (!username || !email || !password) {
-    return res.status(400).json({
-      success: false,
-      error: "username, email, and password are required",
-    });
-  }
-
-  try {
-    const normalizedEmail = email.trim().toLowerCase();
-    const { data: existingUser, error: findError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", normalizedEmail)
-      .maybeSingle();
-
-    if (findError) throw findError;
-
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        error: "This email is already in use",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const { data, error } = await supabase
-      .from("users")
-      .insert({
-        username,
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: role || "user",
-      })
-      .select(PG_SELECT)
-      .single();
-
-    if (error) throw error;
-
-    return res.status(201).json({ success: true, data });
-  } catch (error) {
-    return res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-router.post("/pg/login", async (req, res) => {
-  const { email, password } = req.body || {};
+// Login a user
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      error: "email and password are required",
-    });
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and Password required!" });
   }
 
   try {
-    const normalizedEmail = email.trim().toLowerCase();
-    const { data: userInDB, error } = await supabase
-      .from("users")
-      .select("id, username, email, role, password, created_at, updated_at")
-      .eq("email", normalizedEmail)
-      .maybeSingle();
+    const user = await User.findOne({ email }).select("+password");
 
-    if (error) throw error;
-
-    if (!userInDB) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid email or password",
-      });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found!" });
     }
 
-    const isMatch = await bcrypt.compare(password, userInDB.password);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid email or password",
-      });
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect password!" });
     }
 
-    delete userInDB.password;
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h", // 1 hours expiration
+    });
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: isProd, // only send over HTTPS in production
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
 
     return res.status(200).json({
       success: true,
-      data: userInDB,
-      message: "Login successful",
+      message: "Login successful!",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, error: error.message });
+    next(error);
   }
 });
 
-router.put("/pg/:id", async (req, res) => {
-  const { username, email, password, role } = req.body || {};
-  const updates = {};
+// Check user session/token
+router.get("/auth/me", authUser, async (req, res, next) => {
+  try {
+    const userId = req.user.user._id;
+    const user = await User.findById(userId);
 
-  if (username !== undefined) updates.username = username;
-  if (email !== undefined) updates.email = email.trim().toLowerCase();
-  if (role !== undefined) updates.role = role;
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
 
-  if (Object.keys(updates).length === 0 && password === undefined) {
-    return res.status(400).json({
-      success: false,
-      error: "At least one field is required to update",
+    return res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
-  }
-
-  try {
-    if (password !== undefined) {
-      updates.password = await bcrypt.hash(password, 12);
-    }
-
-    const { data, error } = await supabase
-      .from("users")
-      .update(updates)
-      .eq("id", req.params.id)
-      .select(PG_SELECT);
-
-    if (error) throw error;
-
-    if (!data || data.length === 0) {
-      return res.status(404).json({ success: false, error: "User not found" });
-    }
-
-    return res.status(200).json({ success: true, data: data[0] });
   } catch (error) {
-    return res.status(400).json({ success: false, error: error.message });
+    next(error);
   }
 });
 
-router.delete("/pg/:id", async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .delete()
-      .eq("id", req.params.id)
-      .select("id, username, email, role");
+// Logout a user
+router.post("/auth/logout", (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
 
-    if (error) throw error;
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: isProd, // only send over HTTPS in production
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+  });
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({ success: false, error: "User not found" });
-    }
-
-    return res.status(200).json({ success: true, data: data[0] });
-  } catch (error) {
-    return res.status(400).json({ success: false, error: error.message });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully!",
+  });
 });
+
+// RAG: ask about users (auth required)
+router.post("/ask", authUser, askUsers);

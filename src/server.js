@@ -1,20 +1,27 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
+import { users } from "./fakeData/fakeUsers.js";
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3002;
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  }),
-);
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+  ], // frontend domain
+  credentials: true, // ✅ allow cookies to be sent
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api", apiRoutes);
 
@@ -51,6 +58,7 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
+// Centralized error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -63,24 +71,11 @@ app.use((err, req, res, next) => {
   });
 });
 
+const PORT = 3002;
+
+await connectDB();
+await connectSupabase();
+
 app.listen(PORT, () => {
-  console.log(`Server running on PORT: ${PORT} ✅`);
+  console.log(`Server running on PORT: ${PORT} 🟢`);
 });
-
-try {
-  const isMongoConnected = await connectDB();
-
-  if (isMongoConnected) {
-    console.log("MongoDB connected ✅");
-  } else {
-    console.log("Database mode: fallback without MongoDB");
-  }
-} catch (error) {
-  console.error("MongoDB startup error:", error.message || error);
-}
-
-try {
-  await connectSupabase();
-} catch (error) {
-  console.error("Supabase startup error:", error.message || error);
-}

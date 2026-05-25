@@ -5,6 +5,6 @@ export const router = Router();
 
 router.use("/users", usersRoutes);
 
-// router.use("/products", productsRoutes) ;
+// router.use("/products", productsRoutes);
 
-// router.use("/notes", notesRoutes) ;
+// router.use("/notes", notesRoutes);

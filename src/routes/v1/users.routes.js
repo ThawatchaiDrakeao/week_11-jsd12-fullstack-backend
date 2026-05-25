@@ -8,43 +8,49 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { username, email, password } = req.body || {};
+  const { username, email } = req.body || {};
 
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: "username, email, and password are required" });
+  if (!username || !email) {
+    return res.status(400).json({ error: "username and email are required" });
   }
 
+  // Simple incremental string id based on current mock data
   const nextId = String(
     (users.reduce((max, u) => Math.max(max, Number(u.id)), 0) || 0) + 1,
   );
 
-  const newUser = { id: nextId, username, email, password };
+  const newUser = { id: nextId, username: username, email: email };
 
   users.push(newUser);
 
   return res.status(201).json(newUser);
 });
 
-
 router.put("/:id", (req, res) => {
-  const user = users.find((u) => String(u.id) === req.params.id);
+  const user = users.find((u) => u.id === req.params.id);
 
   if (!user) {
-    return res.status(404).json({ error: "User not found" });
+    return res.status(404).json({ error: "User not found!" });
   }
 
-  const { username, email, password } = req.body || {};
+  const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "username, email, and password are required" });
+    return res
+      .status(400)
+      .json({ error: "username, email and password are required!" });
   }
 
   user.username = username;
   user.email = email;
   user.password = password;
 
-  return res.status(200).json(user);
+  res.status(200).json(user);
 });
 
-
-// router.delete();
+router.delete("/:id", (req, res) => {
+  const index = users.findIndex((u) => u.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: "User not found" });
+  const [deleted] = users.splice(index, 1);
+  res.json(deleted);
+});
