@@ -9,7 +9,11 @@ import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
 import { limiter } from "./middlewares/rateLimit.js";
 
-const app = express();
+const app = express(); 
+
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 
 app.use(helmet());
 
