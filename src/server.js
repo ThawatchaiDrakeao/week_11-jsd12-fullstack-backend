@@ -18,6 +18,8 @@ const corsOptions = {
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
+    "http://localhost:5291",
+    "http://127.0.0.1:5291",
   ], // frontend domain
   credentials: true, // ✅ allow cookies to be sent
 };
