@@ -14,6 +14,12 @@ import { authUser } from "../../middlewares/auth.js";
 
 export const router = Router();
 
+const isSecureRequest = (req) =>
+  process.env.NODE_ENV === "production" ||
+  req.secure ||
+  req.get("x-forwarded-proto") === "https" ||
+  req.hostname.endsWith(".onrender.com");
+
 // MongoDB routes (/api/v2/users)
 
 // Read all users
@@ -58,7 +64,7 @@ router.post("/login", async (req, res, next) => {
       expiresIn: "1h", // 1 hours expiration
     });
 
-    const isProd = process.env.NODE_ENV === "production";
+    const isProd = isSecureRequest(req);
 
     res.cookie("accessToken", token, {
       httpOnly: true,
@@ -112,7 +118,7 @@ router.get("/auth/me", authUser, async (req, res, next) => {
 
 // Logout a user
 router.post("/auth/logout", (req, res) => {
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = isSecureRequest(req);
 
   res.clearCookie("accessToken", {
     httpOnly: true,

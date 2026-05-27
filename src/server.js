@@ -24,6 +24,7 @@ const allowedOrigins = [
   "http://localhost:5175",
   "http://localhost:5291",
   "http://127.0.0.1:5291",
+  "https://week-11-jsd12-fullstack-frontend.vercel.app",
 ].filter(Boolean);
 
 const corsOptions = {
