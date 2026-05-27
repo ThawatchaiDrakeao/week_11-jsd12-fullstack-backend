@@ -1,34 +1,52 @@
 ### Read all users
+
 GET http://localhost:3002/api/v2/users
 
-### Create a new user
+### Create a new user - The Predator
+
 POST http://localhost:3002/api/v2/users
 Content-Type: application/json
 
 {
-    "username": "Charlie", 
-    "role": "admin",
-    "email": "charlie7@example.com",
-    "password": "password123"
+"username": "The Predator",
+"role": "admin",
+"email": "predator.alpha@example.com",
+"password": "Yautja_Hunter!1987"
 }
 
-### Update a user
+### Create a new user - Jason Voorhees
+
+POST http://localhost:3002/api/v2/users
+Content-Type: application/json
+
+{
+"username": "Jason Voorhees",
+"role": "admin",
+"email": "crystal.lake.slash@example.com",
+"password": "Friday13th_Killer"
+}
+
+
+### Update a user - Jason scary nickname
+
 PUT http://localhost:3002/api/v2/users/6a06ad3401facfee7966fc0f
 Content-Type: application/json
 
 {
-    "username": "Neeti3", 
-    "email": "charlie@example.com",
-    "password": "password123"
+"username": "Jason Nightshade",
+"email": "blood.moon.slash@example.com",
+"password": "MacheteOfDoom_X"
 }
 
 ### Update a user - trigger catch (invalid ObjectId causes CastError)
+
 PUT http://localhost:3002/api/v2/users/not-a-valid-id
 Content-Type: application/json
 
 {
-    "username": "TriggerError"
+"username": "TriggerError"
 }
 
 ### DELETE a user
+
 DELETE http://localhost:3002/api/v2/users/6a0be401c1cee9892f7772f6

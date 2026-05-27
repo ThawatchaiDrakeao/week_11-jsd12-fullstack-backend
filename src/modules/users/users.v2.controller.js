@@ -1,4 +1,6 @@
 import { User } from "./user.model.js";
+import { isMongoReady } from "../../config/mongodb.js";
+import { users as fakeUsers } from "../../fakeData/fakeUsers.js";
 
 import { queueEmbedUserById } from "./user.embedding.js";
 import { embedText, generateText } from "../../services/gemini.client.js";
@@ -14,6 +16,17 @@ const PASSWORD_MAX = 72;
 
 export const getUsers = async (req, res, next) => {
   try {
+    if (!isMongoReady()) {
+      const users = fakeUsers.map(({ id, password, role, ...user }) => ({
+        _id: String(id),
+        id,
+        role: role || "user",
+        ...user,
+      }));
+
+      return res.status(200).json({ success: true, data: users });
+    }
+
     const users = await User.find();
     return res.status(200).json({ success: true, data: users });
   } catch (err) {
@@ -151,6 +164,7 @@ export const askUsers = async (req, res, next) => {
     const indexName = "users_embedding_vector_index";
     const numCandidates = Math.max(50, limit * 10); // wider net (numCandidates) → pick best limit results → use them as sources for the prompt.
 
+   
     const sources = await User.aggregate([
       {
         $vectorSearch: {
@@ -172,6 +186,16 @@ export const askUsers = async (req, res, next) => {
         },
       },
     ]);
+   console.log("Vector search sources", {
+      sources: sources.map((s) => ({
+        _id: s._id,
+        username: s.username,
+        email: s.email,
+        role: s.role,
+        score: s.score
+      }))
+    });
+
     // the ? is a defensive technique to avoid runtime errors if any source is missing or malformed
     const contextLines = sources.map((s, idx) => {
       const id = s?._id ? String(s._id) : "";
