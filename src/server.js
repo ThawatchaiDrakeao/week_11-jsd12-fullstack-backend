@@ -7,7 +7,7 @@ import { users } from "./fakeData/fakeUsers.js";
 import { router as apiRoutes } from "./routes/index.js";
 import { connectDB } from "./config/mongodb.js";
 import { connectSupabase } from "./config/supabase.js";
-import { limiter } from "./middlewares/rateLimiter.js";
+import { limiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 
