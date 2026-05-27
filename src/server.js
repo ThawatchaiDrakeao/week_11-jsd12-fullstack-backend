@@ -13,15 +13,18 @@ const app = express();
 
 app.use(helmet());
 
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5291",
+  "http://127.0.0.1:5291",
+].filter(Boolean);
+
 const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5291",
-    "http://127.0.0.1:5291",
-  ], // frontend domain
-  credentials: true, // ✅ allow cookies to be sent
+  origin: allowedOrigins,
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -75,11 +78,11 @@ app.use((err, req, res, next) => {
     path: req.originalUrl,
     method: req.method,
     timestamp: new Date().toISOString(),
-    stack: err.stack,
+    ...(process.env.NODE_ENV === "production" ? {} : { stack: err.stack }),
   });
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 await connectDB();
 await connectSupabase();
